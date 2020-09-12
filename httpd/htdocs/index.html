@@ -1,0 +1,33 @@
+<html>
+<body>
+    <h1>It works!</h1>
+
+    <table border="1">
+        <tr>
+            <th>link</th>
+            <th>condition (credential)</th>
+            <th>description</th>
+        </tr>
+        <tr>
+            <td><a href="auth/admin">auth/admin</a></td>
+            <td>require (user=admin, password=admin, realm=master)</td>
+            <td>keycloak admin console</td>
+        </tr>
+        <tr>
+            <td><a href="btafarelo/index.html">btafarelo/index.html</a></td>
+            <td>require (user=btafarelo, password=btafarelo, realm=my_realm)</td>
+            <td>Apache/httpd content and authorization by username = btafarelo</td>
+        </tr>
+        <tr>
+            <td><a href="role1/index.html">role1/index.html</a></td>
+            <td>require role (role=role1, realm=my_realm), btafarelo user has this role</td>
+            <td>Apache/httpd content and authorization by role1 in user roles</td>
+        </tr>
+        <tr>
+            <td><a href="tomcat">tomcat/index.jsp</a></td>
+            <td>require role (role=role1, realm=my_realm), btafarelo user has this role</td>
+            <td>Apache/httpd authorization by a valid user and Tomcat content authorizated by role1 in user roles with Bearer AccessToken</td>
+        </tr>
+    </table>
+</body>
+</html>

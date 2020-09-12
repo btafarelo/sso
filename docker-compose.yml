@@ -1,0 +1,50 @@
+version: '3.8'
+services:
+    keycloakdb:
+        image: mariadb
+        environment:
+            MYSQL_ROOT_PASSWORD: admin
+            MYSQL_DATABASE: keycloak
+            MYSQL_USER: keycloak
+            MYSQL_PASSWORD: keycloak
+        volumes:
+            - ${PWD}/keycloak/db_data:/var/lib/mysql
+        networks:
+            - sso
+    keycloak:
+        image: btafarelo-sso/keycloak:10.0.1
+        build:
+            context: ./keycloak
+        environment:
+            KEYCLOAK_USER: admin
+            KEYCLOAK_PASSWORD: admin
+            KEYCLOAK_IMPORT: /tmp/my_realm.json
+            DB_VENDOR: MARIADB
+            DB_ADDR: keycloakdb
+            DB_PORT: 3306
+            DB_DATABASE: keycloak
+            DB_USER: keycloak
+            DB_PASSWORD: keycloak
+        volumes:
+            - ${PWD}/keycloak/my_realm.json:/tmp/my_realm.json
+        networks:
+            - sso
+    tomcat:
+        image: btafarelo-sso/tomcat
+        build:
+            context: ./tomcat
+        networks:
+            - sso
+    httpd:
+        image: btafarelo-sso/httpd
+        build:
+            context: ./httpd
+        volumes:
+            - ${PWD}/httpd/htdocs:/usr/local/apache2/htdocs
+        ports:
+            - 80:80
+        networks:
+            - sso
+networks:
+    sso:
+        driver: bridge
