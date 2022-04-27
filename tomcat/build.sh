@@ -1,22 +1,21 @@
 #!/bin/bash
 
-apt update && apt install -y maven
+#apt update && apt install -y maven
 
 cd /tmp
 
-mvn clean package
+curl -OJL https://github.com/keycloak/keycloak/releases/download/18.0.0/keycloak-oidc-tomcat-adapter-18.0.0.zip
 
-cp target/webapp-1.0-SNAPSHOT.war /usr/local/tomcat/webapps/ROOT.war
+unzip keycloak-oidc-tomcat-adapter-18.0.0.zip -d /usr/local/tomcat/lib
 
-file=keycloak-tomcat-adapter-dist-11.0.2.tar.gz
-url=https://downloads.jboss.org/keycloak/11.0.2/adapters/keycloak-oidc/keycloak-tomcat-adapter-dist-11.0.2.tar.gz
+rm keycloak-oidc-tomcat-adapter-18.0.0.zip
 
-cd /usr/local/tomcat/lib
+curl https://dlcdn.apache.org/maven/maven-3/3.8.5/binaries/apache-maven-3.8.5-bin.tar.gz | tar -xz
 
-curl $url -O
+cd /tmp/webapp
 
-tar -xzf $file
+/tmp/apache-maven-3.8.5/bin/mvn -T 1C clean package
 
-rm -f $file
+cp -R target/webapp-1.0-SNAPSHOT /usr/local/tomcat/webapps/ROOT
 
 exit 0

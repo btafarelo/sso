@@ -1,5 +1,5 @@
-FROM tomcat:jdk11-openjdk
+FROM tomcat:9.0-jdk11-openjdk
 
-COPY webapp build.sh /tmp/
+COPY . /tmp/
 
-RUN chmod +x /tmp/build.sh && bash /tmp/build.sh && rm -f /tmp/build.sh
+RUN chmod +x /tmp/build.sh && bash /tmp/build.sh && rm -rf /tmp/*

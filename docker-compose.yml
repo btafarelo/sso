@@ -3,18 +3,18 @@ services:
     keycloakdb:
         image: mariadb
         environment:
-            MYSQL_ROOT_PASSWORD: admin
-            MYSQL_DATABASE: keycloak
-            MYSQL_USER: keycloak
-            MYSQL_PASSWORD: keycloak
-        volumes:
-            - ${PWD}/keycloak/db_data:/var/lib/mysql
+            MARIADB_ROOT_PASSWORD: admin
+            MARIADB_DATABASE: keycloak
+            MARIADB_USER: keycloak
+            MARIADB_PASSWORD: keycloak
         networks:
             - sso
     keycloak:
         image: btafarelo-sso/keycloak:10.0.1
         build:
             context: ./keycloak
+        depends_on:
+            - keycloakdb
         environment:
             KEYCLOAK_USER: admin
             KEYCLOAK_PASSWORD: admin
@@ -26,21 +26,25 @@ services:
             DB_USER: keycloak
             DB_PASSWORD: keycloak
         volumes:
-            - ${PWD}/keycloak/my_realm.json:/tmp/my_realm.json
+            - "./keycloak/my_realm.json:/tmp/my_realm.json"
         networks:
             - sso
     tomcat:
         image: btafarelo-sso/tomcat
         build:
             context: ./tomcat
+        depends_on:
+            - keycloak
         networks:
             - sso
     httpd:
         image: btafarelo-sso/httpd
         build:
             context: ./httpd
+        depends_on:
+            - keycloak
         volumes:
-            - ${PWD}/httpd/htdocs:/usr/local/apache2/htdocs
+            - "./httpd/htdocs:/usr/local/apache2/htdocs"
         ports:
             - 80:80
         networks:
