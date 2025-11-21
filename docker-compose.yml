@@ -1,42 +1,36 @@
 version: '3.8'
 services:
-    keycloakdb:
-        image: mariadb
+    postgres:
+        image: postgres:15
         environment:
-            MARIADB_ROOT_PASSWORD: admin
-            MARIADB_DATABASE: keycloak
-            MARIADB_USER: keycloak
-            MARIADB_PASSWORD: keycloak
-        networks:
-            - sso
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
     keycloak:
-        image: btafarelo-sso/keycloak:10.0.1
+        image: btafarelo-sso/keycloak
         build:
             context: ./keycloak
         depends_on:
-            - keycloakdb
+            - postgres
         environment:
-            KEYCLOAK_USER: admin
-            KEYCLOAK_PASSWORD: admin
-            KEYCLOAK_IMPORT: /tmp/my_realm.json
-            DB_VENDOR: MARIADB
-            DB_ADDR: keycloakdb
-            DB_PORT: 3306
-            DB_DATABASE: keycloak
-            DB_USER: keycloak
-            DB_PASSWORD: keycloak
+            KC_HTTP_ENABLED: true
+            KC_BOOTSTRAP_ADMIN_USERNAME: admin
+            KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+            KC_DB: postgres
+            KC_DB_URL: jdbc:postgresql://postgres/postgres
+            KC_DB_USERNAME: postgres
+            KC_DB_PASSWORD: postgres
         volumes:
-            - "./keycloak/my_realm.json:/tmp/my_realm.json"
-        networks:
-            - sso
+            - "./keycloak/my_realm.json:/opt/keycloak/data/import/my_realm.json"
+        ports:
+            - 8080:8080
     tomcat:
         image: btafarelo-sso/tomcat
         build:
             context: ./tomcat
         depends_on:
             - keycloak
-        networks:
-            - sso
+        ports:
+            - 8081:8080
     httpd:
         image: btafarelo-sso/httpd
         build:
@@ -47,8 +41,3 @@ services:
             - "./httpd/htdocs:/usr/local/apache2/htdocs"
         ports:
             - 80:80
-        networks:
-            - sso
-networks:
-    sso:
-        driver: bridge
